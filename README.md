@@ -16,6 +16,7 @@ git clone该代码库后，直接进入项目文件执行build.sh文件，会执
 build.sh会自动创建相关目录并执行编译
 
 ### 文件说明
+```bash
 .
 ├── CMakeLists.txt  
 ├── README.md
@@ -61,7 +62,7 @@ build.sh会自动创建相关目录并执行编译
     └── service
         ├── http_server.cpp
         └── rpc_server.cpp
-
+```
 
 
 
