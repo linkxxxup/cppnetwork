@@ -1,19 +1,23 @@
 cpp framework for both rpc and http
 =======================
+### 写在前面
+- 该框架所有工作为自己完成，commit次数比较少是因为该代码库是从自己的另一个github账号下开源过来。
+- rpc部分功能实现参考代码库 [buttonrpc](https://github.com/button-chen/buttonrpc_cpp14/blob/master/Serializer.hpp)
+- http部分功能实现参考代码库 [tinywebserver](https://github.com/qinguoyi/TinyWebServer)
 
 ### 环境依赖
-c++17
-taskflow 图引擎的基础框架
-boost 用于conf文件解析
+- c++17
+- taskflow 图引擎的基础框架
+- boost 用于conf文件解析
 
 ### 启动
-git clone该代码库后，直接进入项目文件执行build.sh文件，会执行demo，在bin文件下生成可执行文件。
+- git clone该代码库后，直接进入项目文件执行build.sh文件，会执行demo，在bin文件下生成可执行文件。
 
-可以按照src下的*_main.cpp文件创建自己的rpc/http 服务端/客户端（目前还没写http客户端部分的代码，暂不需要，直接用postman或者浏览器向服务端发送请求就好了）。
-在net_data.conf设置自己的网络参数
+- 可以按照src下的*_main.cpp文件创建自己的rpc/http协议下的服务端/客户端（目前还没写http客户端部分的代码，暂不需要，直接用postman或者浏览器向服务端发送请求就好了）。
+在net_data.conf设置自己的网络参数。
 需要修改下CMake，需包含自己的源main文件。
 
-build.sh会自动创建相关目录并执行编译
+- build.sh会自动创建相关目录并执行编译
 
 ### 文件说明
 ```bash
@@ -64,5 +68,6 @@ build.sh会自动创建相关目录并执行编译
         └── rpc_server.cpp
 ```
 
+### 源码结构
 
 

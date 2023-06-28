@@ -74,6 +74,8 @@ public:
     bool add_linger(int sockfd);
     bool add_blank_line(int sockfd);
 
+    // 为每个任务创建自己的数据结构存储信息，为了共用httpserver的处理函数，
+    // 如果不引入该类内类型，由于httpserverr为单例模式，只能同时存在一个任务的信息
     class EveryTask{
     public:
         EveryTask(int sockfd): _sockfd(sockfd){
