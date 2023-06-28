@@ -69,5 +69,6 @@ cpp framework for both rpc and http
 ```
 
 ### 源码结构
+![image](https://github.com/linkxxxup/cppnetwork/tree/main/http_resource/structure.png)
 
 
