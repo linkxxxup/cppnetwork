@@ -69,6 +69,6 @@ cpp framework for both rpc and http
 ```
 
 ### UML类图
-![](https://github.com/linkxxxup/cppnetwork/tree/main/http_resource/structure.png)
+![image](https://github.com/linkxxxup/cppnetwork/blob/907c54b3a133bc1e9b05c7b8c56889c7d197151e/http_resource/structure.png)
 
 
