@@ -14,8 +14,8 @@ cpp framework for both rpc and http
 - git clone该代码库后，直接进入项目文件执行build.sh文件，会执行demo，在bin文件下生成可执行文件。
 
 - 可以按照src下的*_main.cpp文件创建自己的rpc/http协议下的服务端/客户端（目前还没写http客户端部分的代码，暂不需要，直接用postman或者浏览器向服务端发送请求就好了）。
-在net_data.conf设置自己的网络参数。
-需要修改下CMake，需包含自己的源main文件。
+  在net_data.conf设置自己的网络参数。
+  需要修改下CMake，需包含自己的源main文件。
 
 - build.sh会自动创建相关目录并执行编译
 
@@ -70,5 +70,3 @@ cpp framework for both rpc and http
 
 ### UML类图
 ![image](https://github.com/linkxxxup/cppnetwork/blob/907c54b3a133bc1e9b05c7b8c56889c7d197151e/http_resource/structure.png)
-
-

@@ -35,45 +35,45 @@ namespace wut::zgy::cppnetwork{
                 int sockfd = _epoll_fd->get_event_fd(i);
                 if(sockfd == _listen_fd._socket_fd){
                     // 为了调试，先不使用线程
-                    accept();
+//                    accept();
                     // 用线程池中线程处理
-//                    _thread_pool->add_task([this] { return this->accept(); });
+                    _thread_pool->add_task([this] { return this->accept(); });
                 }else if(_epoll_fd->get_events(i) & EPOLLIN){
                     // 为了调试，先不使用线程
-                    int len = receive(sockfd);
-                    if(len <= 0){
-                        _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
-                        ::close(sockfd);
-                    }
-                    if(len > 0){
-                        int ret = deal_read(sockfd, len);
-                    }
+//                    int len = receive(sockfd);
+//                    if(len <= 0){
+//                        _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
+//                        ::close(sockfd);
+//                    }
+//                    if(len > 0){
+//                        int ret = deal_read(sockfd, len);
+//                    }
                     // 用线程池中线程处理
-//                    _thread_pool->add_task([this, sockfd] {
-//                        int len = receive(sockfd);
-//                        if(len <= 0){
-//                            _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
-//                            ::close(sockfd);
-//                        }
-//                        if(len > 0){
-//                            int ret = deal_read(sockfd, len);
-//                            if(ret < 0){
-//                                LOG_INFO("处理结果返回值为空");
-//                            }
-//                        }
-//                    });
+                    _thread_pool->add_task([this, sockfd] {
+                        int len = receive(sockfd);
+                        if(len <= 0){
+                            _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
+                            ::close(sockfd);
+                        }
+                        if(len > 0){
+                            int ret = deal_read(sockfd, len);
+                            if(ret < 0){
+                                LOG_INFO("处理结果返回值为空");
+                            }
+                        }
+                    });
                 }else if(_epoll_fd->get_events((i)) & EPOLLOUT){
-//                    _thread_pool->add_task([this, sockfd]{
-//                        int len = deal_write(sockfd);
-//                        if(len <= 0){
-//                            LOG_INFO("server send failed");
-//                        }
-//                    });
+                    _thread_pool->add_task([this, sockfd]{
+                        int len = deal_write(sockfd);
+                        if(len <= 0){
+                            LOG_INFO("server send failed");
+                        }
+                    });
                     // 不使用线程
-                    int len = deal_write(sockfd);
-                    if(len <= 0){
-                        LOG_INFO("server send failed");
-                    }
+//                    int len = deal_write(sockfd);
+//                    if(len <= 0){
+//                        LOG_INFO("server send failed");
+//                    }
                 }else if(_epoll_fd->get_events((i)) & EPOLLERR){
                     _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
                     close(sockfd);
