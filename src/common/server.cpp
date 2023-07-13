@@ -51,21 +51,18 @@ namespace wut::zgy::cppnetwork{
                     // 用线程池中线程处理
                     _thread_pool->add_task([this, sockfd] {
                         int len = receive(sockfd);
-                        if(len <= 0){
+                        if(len < 0){
                             _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
                             ::close(sockfd);
                         }
-                        if(len > 0){
-                            int ret = deal_read(sockfd, len);
-                            if(ret < 0){
-                                LOG_INFO("处理结果返回值为空");
-                            }
+                        if(len >= 0){
+                            deal_read(sockfd, len);
                         }
                     });
                 }else if(_epoll_fd->get_events((i)) & EPOLLOUT){
                     _thread_pool->add_task([this, sockfd]{
                         int len = deal_write(sockfd);
-                        if(len <= 0){
+                        if(len < 0){
                             LOG_INFO("server send failed");
                         }
                     });

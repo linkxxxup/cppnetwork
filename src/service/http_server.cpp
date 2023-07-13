@@ -38,19 +38,19 @@ namespace wut::zgy::cppnetwork{
             }else{
                 _epoll_fd->mod_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
             }
-            LOG_INFO("请求不完整，继续读")
+//            LOG_INFO("请求不完整，继续读")
             return 0;
         }
         bool ret_write = process_write(ret_read, sockfd);
         if(!ret_write){
-            LOG_ERROR("未生成http响应报文")
+            LOG_ERROR("生成失败http响应报文")
             if(_is_et_conn){
-                _epoll_fd->del_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
+                _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
             }else{
-                _epoll_fd->del_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
+                _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
             }
-            close(sockfd);
-            return 1;
+//            close(sockfd);
+            return 0;
         }
         if(_is_et_conn){
             _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
@@ -183,7 +183,7 @@ namespace wut::zgy::cppnetwork{
                 }
             }
         }
-        LOG_INFO("NO_REQUEST")
+//        LOG_INFO("NO_REQUEST")
         return HTTP_ERR_CODE::NO_REQUEST;
     }
 
@@ -305,7 +305,7 @@ namespace wut::zgy::cppnetwork{
             task._host = text;
         }
         else {
-            LOG_ERROR("oop!unknow header: %s",text);
+            LOG_INFO("oop!unknow header: %s",text);
         }
         return HTTP_ERR_CODE ::NO_REQUEST;
     }
