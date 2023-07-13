@@ -70,17 +70,19 @@ public:
     }
 
     int init(Conf &conf){
-        _net_flag = std::stoi(conf.get("net_data.net_flag"));
-        _net_mode = std::stoi(conf.get("net_data.net_mode"));
-        if(_net_mode == HTTPMODE)
-        {
-#define HTTP
-        }
-        if(_net_mode == RPCMODE)
-        {
-#define RPC
-        }
-        if(_net_flag != CLIENT){
+#ifdef HTTPSERVER
+        _net_flag = SERVER;
+#endif
+#ifdef HTTPCLIENT
+        _net_flag = CLIENT;
+#endif
+#ifdef RPCSERVER
+        _net_flag = SERVER;
+#endif
+#ifdef RPCCLIENT
+        _net_flag = CLIENT;
+#endif
+        if(_net_flag == SERVER){
             _ip = conf.get("server.ip");
             _port = std::stoi(conf.get("server.port"));
             // 监听socket不能注册oneshot，否则程序只能处理一个客户连接，以后后续客户端的连接请求将不再触发listenfd上的EPOLL事件
@@ -101,7 +103,7 @@ public:
                 _use_thread_pool = true;
             }
         }
-        if(_net_flag != SERVER){
+        if(_net_flag == CLIENT){
             _ip = conf.get("client.ip");
             _port = std::stoi(conf.get("client.port"));
         }
