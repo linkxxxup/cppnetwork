@@ -55,8 +55,15 @@ namespace wut::zgy::cppnetwork{
                             _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
                             ::close(sockfd);
                         }
-                        if(len >= 0){
+                        if(len > 0){
                             deal_read(sockfd, len);
+                        }
+                        if(len == 0){
+                            if(_is_et_conn){
+                                _epoll_fd->mod_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
+                            }else{
+                                _epoll_fd->mod_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
+                            }
                         }
                     });
                 }else if(_epoll_fd->get_events((i)) & EPOLLOUT){

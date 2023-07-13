@@ -38,12 +38,12 @@ namespace wut::zgy::cppnetwork{
             }else{
                 _epoll_fd->mod_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
             }
-//            LOG_INFO("请求不完整，继续读")
+            LOG_INFO("请求不完整，继续读")
             return 0;
         }
         bool ret_write = process_write(ret_read, sockfd);
         if(!ret_write){
-            LOG_ERROR("生成失败http响应报文")
+            LOG_ERROR("未生成http响应报文")
             if(_is_et_conn){
                 _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
             }else{
@@ -183,7 +183,7 @@ namespace wut::zgy::cppnetwork{
                 }
             }
         }
-//        LOG_INFO("NO_REQUEST")
+        LOG_INFO("NO_REQUEST")
         return HTTP_ERR_CODE::NO_REQUEST;
     }
 
