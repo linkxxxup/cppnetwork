@@ -91,12 +91,13 @@ public:
 public:
     template<typename Tuple, std::size_t Id>
     void getv(Serializer &ds, Tuple &t) {
+        //这里重写了>>，不是字符串遇到空字符停止输出，而是根据类型所占的字节长度，将序列对象的数据输出
         ds >> std::get<Id>(t);
     }
     template<typename Tuple, std::size_t... I>
     Tuple get_tuple(std::index_sequence<I...>) {
         Tuple t;
-        std::initializer_list < int > {((getv<Tuple, I>(*this, t)), 0)...};
+        std::initializer_list<int> {((getv<Tuple, I>(*this, t)), 0)...};
         return t;
     }
 
@@ -114,9 +115,12 @@ public:
 private:
     int _byteorder;
     StreamBuffer _iodevice;
+//
+    friend class Registry;
 };
 
-// 输出类型长度
+//如果不是char*和string类型，是基础类型，则直接按基础类型的大小输出值
+//如果是char*或string类型，则先根据string对象的大小，输出string对象的值
 template<typename T>
 inline void Serializer::output_type(T &t) {
     int len = sizeof(T);
@@ -146,6 +150,8 @@ inline void Serializer::output_type(std::string &in) {
     _iodevice.offset(len);
 }
 
+//如果不是char*和string类型，是基础类型，则直接按基础类型的大小存储值
+//如果是char*或string类型，则先存储string对象的大小，再存储string对象的值
 template<typename T>
 inline void Serializer::input_type(T t) {
     int len = sizeof(T);

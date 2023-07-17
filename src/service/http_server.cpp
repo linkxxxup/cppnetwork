@@ -1,6 +1,26 @@
 #include "http_server.h"
 
 namespace wut::zgy::cppnetwork{
+    void HttpServer::connect_registry() {
+        // server作为客户端连接注册中心
+        std::string register_ip = _net_data->_register_ip;
+        int register_port = _net_data->_register_port;
+        Socket register_fd = Socket(register_ip, register_port);
+        if((register_fd._socket_fd = ::socket(AF_INET, SOCK_STREAM, 0)) == -1){
+            LOG_ERROR("%s", strerror(errno))
+            abort();
+        }
+        register_fd.set_send_buf(10 * 1024);
+        register_fd.set_recv_buf(10 * 1024);
+        int res = register_fd.connect();
+        if(res == 1){
+            LOG_ERROR("register can not connect")
+            abort();
+        }else{
+            _register_fd = register_fd;
+            LOG_INFO("register connected!")
+        }
+    }
     // 和rpcserver接收函数一致
     // 调用时使用_read_idx = receive(sockfd)
     int HttpServer::receive(int sockfd) {

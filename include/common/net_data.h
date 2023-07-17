@@ -16,12 +16,8 @@ class NetData{
 public:
     enum NET_FLAG{
         SERVER,
-        CLIENT
-    };
-
-    enum NET_MODE{
-        RPCMODE,
-        HTTPMODE
+        CLIENT,
+        REGISTRY
     };
 
     // rpc
@@ -45,8 +41,8 @@ public:
     enum METHOD{
         GET,
         POST,
-        HEAD,
         PUT,
+        HEAD,
         DELETE,
         TRACE,
         OPTIONS,
@@ -82,9 +78,15 @@ public:
 #ifdef RPCCLIENT
         _net_flag = CLIENT;
 #endif
+#ifdef REGISTERSERVER
+        _net_flag = REGISTRY;
+#endif
         if(_net_flag == SERVER){
             _ip = conf.get("server.ip");
             _port = std::stoi(conf.get("server.port"));
+            // register地址绑定
+            _register_ip = conf.get("server.register_ip");
+            _register_port = std::stoi(conf.get("server.register_port"));
             // 监听socket不能注册oneshot，否则程序只能处理一个客户连接，以后后续客户端的连接请求将不再触发listenfd上的EPOLL事件
             _is_run = false;
             _use_thread_pool = false;
@@ -107,6 +109,27 @@ public:
             _ip = conf.get("client.ip");
             _port = std::stoi(conf.get("client.port"));
         }
+        if(_net_flag == REGISTRY){
+            _ip = conf.get("register.ip");
+            _port = std::stoi(conf.get("register.port"));
+            // 监听socket不能注册oneshot，否则程序只能处理一个客户连接，以后后续客户端的连接请求将不再触发listenfd上的EPOLL事件
+            _is_run = false;
+            _use_thread_pool = false;
+            _thread_num_max = -1;
+            _max_event = std::stoi(conf.get("register.max_event"));
+            _is_et_lis = false;
+            _is_et_conn = false;
+            if(std::stoi(conf.get("register.event_listen_mode")) == 1){
+                _is_et_lis = true;
+            }
+            if(std::stoi(conf.get("register.event_connect_mode")) == 1){
+                _is_et_conn = true;
+            }
+            _thread_num_max = std::stoi(conf.get("register.thread_num_max"));
+            if(_thread_num_max > 0){
+                _use_thread_pool = true;
+            }
+        }
         return 0;
     }
 
@@ -117,20 +140,20 @@ private:
     }
 
     int _net_flag;
-    int _net_mode;
     std::string _ip;
     int _port;
-    std::string _target_ip;
-    int _target_port;
     bool _is_run;
     bool _use_thread_pool;
     int _thread_num_max;
     int _max_event;
     bool _is_et_conn;
     bool _is_et_lis;
-
+    std::string _register_ip;
+    int _register_port;
 
     friend class Client;
     friend class Server;
+    friend class RpcServer;
+    friend class HttpServer;
 };
 }

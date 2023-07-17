@@ -43,6 +43,7 @@ public:
     int receive(int sockfd) override;
     int deal_read(int sockfd, int len) override;
     int deal_write(int sockfd) override;
+    void connect_registry();
 
     // 数据进行初始化
     void init_data(int sockfd);
@@ -129,6 +130,7 @@ private:
     ~HttpServer()override = default;
     std::map<int, EveryTask> _task;
     std::mutex _mutex;
+    Socket _register_fd;
 };
 
 }

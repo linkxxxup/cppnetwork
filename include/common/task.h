@@ -90,7 +90,7 @@ private:
         });
 
         auto C = _taskflow.emplace([this](){
-            // 获取网络参数配置
+            // 获取网络参数配置``
             _conf_net = Conf("../conf/net_data.conf");   //C
             CHECK_RET(_conf_net.get_err_code()==0, "net_data.conf error");
         });
@@ -122,17 +122,19 @@ private:
         auto F = _taskflow.emplace([this](){
 #ifdef RPCSERVER
             // rpc服务器开启
+            _rserver_fd->connect_registry();
             _rserver_fd->run(); // E->F
 #endif
 #ifdef RPCCLIENT
-            // rpc服务器开启
+            // rpc客户端开启
             _rclient_fd->run(); // E->F
 #endif
 #ifdef HTTPSERVER
-        _hserver_fd->run();
+            _hserver_fd->connect_registry();
+            _hserver_fd->run();
 #endif
 #ifdef HTTPCLIENT
-        _hclient_fd->run();
+            _hclient_fd->run();
 #endif
         });
         _task_map.insert({'A', A});

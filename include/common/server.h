@@ -11,12 +11,6 @@ namespace wut::zgy::cppnetwork{
 
 class Server{
 public:
-    // 声明server为抽象类，不能实例化
-//    static Server *get_instance()
-//    {
-//        static Server instance;
-//        return &instance;
-//    }
     int init(NetData *net_data){
         _net_data = net_data;
         _ip = _net_data->_ip;
@@ -36,7 +30,6 @@ public:
     virtual int receive(int sockfd) = 0;
     virtual int deal_read(int sockfd, int len) = 0; // 处理读事件
     virtual int deal_write(int sockfd) = 0; // 处理写事件
-    //    virtual int parse(); // 解析
 
 protected:
     Server() = default;
@@ -51,7 +44,6 @@ protected:
     bool _is_et_lis;
     std::unique_ptr<ThreadPool> _thread_pool;
     std::unique_ptr<Epoller> _epoll_fd;
-    int _net_mode;
 
 private:
     std::string _ip;

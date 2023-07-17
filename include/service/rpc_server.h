@@ -19,6 +19,7 @@ public:
     int receive(int sockfd) override;
     int deal_read(int sockfd, int len) override;
     int deal_write(int sockfd) override;
+    void connect_registry();
 
     class EveryTask{
     public:
@@ -58,7 +59,8 @@ public:
 
 private:
     RpcServer() = default;
-    ~RpcServer()override = default;
+    ~RpcServer() override = default;
+    Socket _register_fd;
     // 存储服务端所有函数的哈希表
     std::unordered_map<std::string, std::function<void(Serializer*, const char *, int)>> _func_map;
     std::map<int, EveryTask> _task_map;
@@ -112,11 +114,13 @@ void RpcServer::callproxy_(R (C::*func)(Params...), S *s, wut::zgy::cppnetwork::
 template<typename R, typename ...Params>
 void RpcServer::callproxy_(std::function<R(Params...)> func, wut::zgy::cppnetwork::Serializer *pr, const char *data,
                            int len) {
+    // args_type为对应Params的元组类型
     using args_type = std::tuple<typename std::decay<Params>::type...>;
 
     Serializer ds(StreamBuffer(data, len));
     constexpr auto N = std::tuple_size<typename std::decay<args_type>::type>::value;
-    args_type args = ds.get_tuple < args_type > (std::make_index_sequence<N>{});
+    // 将字符串data转换成相应的形参类型然后打包成一个元组
+    args_type args = ds.get_tuple<args_type>(std::make_index_sequence<N>{});
 
     typename type_xx<R>::type r = call_helper<R>(func, args);
 
