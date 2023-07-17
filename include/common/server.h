@@ -44,8 +44,6 @@ protected:
     bool _is_et_lis;
     std::unique_ptr<ThreadPool> _thread_pool;
     std::unique_ptr<Epoller> _epoll_fd;
-
-private:
     std::string _ip;
     int _port;
 };

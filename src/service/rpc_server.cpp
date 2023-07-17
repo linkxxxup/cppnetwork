@@ -99,6 +99,35 @@ void RpcServer::connect_registry() {
         _register_fd = register_fd;
         LOG_INFO("register connected!")
     }
+    // 向注册中心发送服务器端信息
+    assert(register_());
+}
+
+bool RpcServer::register_(){
+    Serializer ds;
+    ds << _net_data->_net_flag;
+    ds << _ip;
+    ds << _port;
+    for(auto & it : _func_map){
+        ds << it.first;
+    }
+    int res = _register_fd.send(ds.data(), ds.size());
+    if(res == 1){
+        LOG_ERROR("register can not connect")
+    }else{
+        LOG_INFO("register data send!")
+    }
+    char recv_buf[20];
+    memset(recv_buf, 0, sizeof(recv_buf));
+    res = _register_fd.receive(_register_fd._socket_fd, recv_buf, sizeof(recv_buf));
+    std::string res_info = recv_buf;
+    if(res > 0 && res_info == "register:0"){
+        LOG_INFO("register success!")
+        return true;
+    }else{
+        LOG_INFO("register failed!")
+        return false;
+    }
 }
 
 }

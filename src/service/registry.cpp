@@ -39,14 +39,38 @@ int Registry::deal_read(int sockfd, int len) {
     }
     if(register_(sockfd, &ds, len)){
         LOG_INFO("register success: sockfd[%d]", sockfd);
+        std::string res_info = "register:0";
+        strcpy(task._send_buf, res_info.c_str());
+        //重置oneshot
+        if(_is_et_conn){
+            _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
+        }else{
+            _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
+        }
+        return 0;
     }else{
         LOG_INFO("no data receive")
+        std::string res_info = "register:1";
+        strcpy(task._send_buf, res_info.c_str());
         return -1;
     }
 }
 
 int Registry::deal_write(int sockfd) {
-
+    EveryTask &task = _task_map.at(sockfd);
+    int len = ::send(sockfd, task._send_buf, sizeof(task._send_buf), 0);
+    memset(task._send_buf, 0, sizeof(task._send_buf));
+    if(len > 0){
+        //重置oneshot
+        if(_is_et_conn){
+            _epoll_fd->mod_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
+        }else{
+            _epoll_fd->mod_fd(sockfd, EPOLLIN|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
+        }
+        return len;
+    }else{
+        return -1;
+    }
 }
 
 bool Registry::register_(int sockfd, Serializer* ds, int len) {

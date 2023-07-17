@@ -32,7 +32,7 @@ public:
         int _sockfd;
         SERVERTYPE _type;
         std::string _ip;
-        std::string _port;
+        int _port;
         std::vector<std::string> _server_list;
         std::map<std::string, int> _resource_count;
 

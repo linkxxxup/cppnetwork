@@ -41,7 +41,7 @@ int Server::epoll_wait() {
             }else if(_epoll_fd->get_events(i) & EPOLLIN){
                 // 为了调试，先不使用线程
                 int len = receive(sockfd);
-                if(len <= 0){
+                if(len < 0){
                     _epoll_fd->del_fd(sockfd, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLONESHOT);
                     ::close(sockfd);
                 }

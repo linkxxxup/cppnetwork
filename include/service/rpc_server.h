@@ -60,6 +60,7 @@ public:
 private:
     RpcServer() = default;
     ~RpcServer() override = default;
+    bool register_(); // 向注册中心发送服务器端信息
     Socket _register_fd;
     // 存储服务端所有函数的哈希表
     std::unordered_map<std::string, std::function<void(Serializer*, const char *, int)>> _func_map;

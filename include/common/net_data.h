@@ -15,8 +15,10 @@ namespace wut::zgy::cppnetwork{
 class NetData{
 public:
     enum NET_FLAG{
-        SERVER,
-        CLIENT,
+        HSERVER,
+        HCLIENT,
+        RSERVER,
+        RCLIENT,
         REGISTRY
     };
 
@@ -67,21 +69,21 @@ public:
 
     int init(Conf &conf){
 #ifdef HTTPSERVER
-        _net_flag = SERVER;
+        _net_flag = HSERVER;
 #endif
 #ifdef HTTPCLIENT
-        _net_flag = CLIENT;
+        _net_flag = HCLIENT;
 #endif
 #ifdef RPCSERVER
-        _net_flag = SERVER;
+        _net_flag = RSERVER;
 #endif
 #ifdef RPCCLIENT
-        _net_flag = CLIENT;
+        _net_flag = RCLIENT;
 #endif
 #ifdef REGISTERSERVER
         _net_flag = REGISTRY;
 #endif
-        if(_net_flag == SERVER){
+        if(_net_flag == HSERVER || _net_flag == RSERVER){
             _ip = conf.get("server.ip");
             _port = std::stoi(conf.get("server.port"));
             // register地址绑定
@@ -105,7 +107,7 @@ public:
                 _use_thread_pool = true;
             }
         }
-        if(_net_flag == CLIENT){
+        if(_net_flag == HCLIENT || _net_flag == RCLIENT){
             _ip = conf.get("client.ip");
             _port = std::stoi(conf.get("client.port"));
         }
