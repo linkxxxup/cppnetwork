@@ -14,6 +14,11 @@ public:
         HTTP,
         RPC
     };
+    enum RECVTYPE{
+        REG,
+        DEREG,
+        FINDSERVER
+    };
     static Registry* get_instance(){
         static Registry instance;
         return &instance;
@@ -34,8 +39,6 @@ public:
         std::string _ip;
         int _port;
         std::vector<std::string> _server_list;
-        std::map<std::string, int> _resource_count;
-
     };
 
     class EveryTask{
@@ -53,21 +56,28 @@ public:
 
 
 private:
+    // 注册服务
     bool register_(int sockfd, Serializer*, int len);
+    // 删除服务
     void deregister();
-    void get_server();
-    void discover_server();
+    // 发现服务，返回服务器地址给客户端
+    int discover_server(Serializer*, int len);
     void update_server();
 
     Registry() = default;
     ~Registry() override = default;
     // map存储sockfd和对应的server信息
     std::map<int, ServerItem> _server_map;
-    std::mutex _mutex_map;
+    std::mutex _mutex_server;
     std::chrono::duration<int, std::milli> _timer;
     // map存储sockfd和对应任务
     std::map<int, EveryTask> _task_map;
     std::mutex _mutex_task;
-
+    // map存储服务名和sockfd
+    std::map<std::string, std::vector<int>> _addr_map;
+    std::mutex _mutex_addr;
+    // map存储服务名和调用次数
+    std::map<std::string, int> _count_map;
+    std::mutex _mutex_count;
 };
 }

@@ -8,8 +8,6 @@ public:
     int init(NetData *net_data) ;
     int run();
     int close();
-//    int parse() override; // 解析
-//    int result() override; // 生成结果
 
 protected:
     Client() = default;

@@ -105,6 +105,7 @@ void RpcServer::connect_registry() {
 
 bool RpcServer::register_(){
     Serializer ds;
+    ds << REG;
     ds << _net_data->_net_flag;
     ds << _ip;
     ds << _port;

@@ -37,23 +37,54 @@ int Registry::deal_read(int sockfd, int len) {
         LOG_INFO("ds has no data")
         return -1;
     }
-    if(register_(sockfd, &ds, len)){
-        LOG_INFO("register success: sockfd[%d]", sockfd);
-        std::string res_info = "register:0";
-        strcpy(task._send_buf, res_info.c_str());
-        //重置oneshot
-        if(_is_et_conn){
-            _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
-        }else{
-            _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
+    RECVTYPE flag;
+    ds >> flag;
+    switch (flag){
+        case REG: {
+            if(register_(sockfd, &ds, len)){
+                LOG_INFO("register success: sockfd[%d]", sockfd);
+                std::string res_info = "register:0";
+                strcpy(task._send_buf, res_info.c_str());
+                //重置oneshot
+                if(_is_et_conn){
+                    _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
+                }else{
+                    _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
+                }
+                return 0;
+            }else{
+                LOG_INFO("no data receive")
+                std::string res_info = "register:1";
+                strcpy(task._send_buf, res_info.c_str());
+                return -1;
+            }
         }
-        return 0;
-    }else{
-        LOG_INFO("no data receive")
-        std::string res_info = "register:1";
-        strcpy(task._send_buf, res_info.c_str());
-        return -1;
+        case DEREG:{
+            break;
+        }
+        case FINDSERVER:{
+            int sock_index = discover_server(&ds, len);
+            Serializer sends;
+            if(sock_index != -1){
+                sends << 0;
+                sends << _server_map[sock_index]._ip;
+                sends << _server_map[sock_index]._port;
+                memcpy(task._send_buf, sends.data(), sends.size());
+                //重置oneshot
+                if(_is_et_conn){
+                    _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLET|EPOLLERR|EPOLLRDHUP);
+                }else{
+                    _epoll_fd->mod_fd(sockfd, EPOLLOUT|EPOLLONESHOT|EPOLLERR|EPOLLRDHUP);
+                }
+                return 0;
+            }else{
+                sends << 1;
+                strcpy(task._send_buf, sends.data());
+                return -1;
+            }
+        }
     }
+
 }
 
 int Registry::deal_write(int sockfd) {
@@ -83,13 +114,30 @@ bool Registry::register_(int sockfd, Serializer* ds, int len) {
         std::string temp;
         *ds >> temp;
         st._server_list.push_back(temp);
+        _mutex_addr.lock();
+        _addr_map[temp].push_back(sockfd);
+        _mutex_addr.unlock();
     }
     if(st._server_list.size() > 0) {
-        _mutex_map.lock();
+        _mutex_server.lock();
         _server_map.insert({sockfd, st});
-        _mutex_map.unlock();
+        _mutex_server.unlock();
         return true;
     }
     else return false;
+}
+
+int Registry::discover_server(wut::zgy::cppnetwork::Serializer *ds, int len) {
+    std::string name;
+    *ds >> name;
+    // 负载均衡
+    auto it = _addr_map.find(name);
+    if(it != _addr_map.end()){
+        _count_map[name]++;
+        int index = _count_map[name] % _addr_map[name].size();
+        return _addr_map[name][index];
+    }else{
+        return -1;
+    }
 }
 }

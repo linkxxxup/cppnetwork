@@ -9,13 +9,17 @@
 namespace wut::zgy::cppnetwork{
 class RpcServer : public Server{
 public:
+    enum SENDTYPE{
+        REG,
+        DEREG,
+        RPC
+    };
     static RpcServer *get_instance()
     {
         static RpcServer instance;
         return &instance;
     }
 
-//        int send() override;
     int receive(int sockfd) override;
     int deal_read(int sockfd, int len) override;
     int deal_write(int sockfd) override;
